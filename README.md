@@ -117,3 +117,118 @@ A ClientLib will consist of the following files and directories:
 The project comes with the auto-public repository configured. To setup the repository in your Maven settings, refer to:
 
     http://helpx.adobe.com/experience-manager/kb/SetUpTheAdobeMavenRepository.html
+
+
+# SonarQube setup
+
+Setting up Sonarqube is not discussed in this readme. Leverage the following plugins to define how to perform the following
+
+- Unit Tests
+- Jacoco reports
+- Sonarqube Analysis
+
+This is within the main pom file:
+
+```
+    <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.1.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>3.7.0.1746</version>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.10</version>
+          <executions>
+            <execution>
+              <id>default-prepare-agent</id>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>default-report</id>
+              <phase>prepare-package</phase>
+              <goals>
+                <goal>report</goal>
+              </goals>
+              <configuration>
+                <propertyName>jacoco.agent.argLine</propertyName>
+                <destFile>target/jacoco.exec</destFile>
+              </configuration>
+            </execution>
+            <execution>
+              <id>default-check</id>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <rule>
+                    <element>PACKAGE</element>
+                    <limits>
+                      <limit>
+                        <counter>LINE</counter>
+                        <value>COVEREDRATIO</value>
+                        <minimum>0.00</minimum>
+                      </limit>
+                      <limit>
+                        <counter>BRANCH</counter>
+                        <value>COVEREDRATIO</value>
+                        <minimum>0.00</minimum>
+                      </limit>
+                    </limits>
+                  </rule>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+```
+
+Within core/pom.xml
+
+```
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+```
+
+Run `mvn clean package` to perform the unit tests and jacoco analysis, once complete then execute the following to run against SonarQube
+
+```
+mvn sonar:sonar \                                                      
+  -Dsonar.host.url=http://localhost:9002 \
+  -Dsonar.scm.disabled=true
+```
+
+Leverage the following maven property to ignore certain files to be processed by Sonarqube:
+
+```
+<sonar.coverage.exclusions>
+      **/*IT.java,
+      **/HtmlUnitClient.java
+</sonar.coverage.exclusions>
+```
+
+The results of the tests look like the following:
+
+![Screenshot 2023-09-11 at 11 28 56 PM](https://github.com/pat-lego/aem-sonarqube-example/assets/36930772/a392f217-02c7-4b76-bb50-ebd5eb656e5c)
+
+![Screenshot 2023-09-11 at 11 29 02 PM](https://github.com/pat-lego/aem-sonarqube-example/assets/36930772/c2396dd3-0195-4460-aac5-7fa068f0b242)
+
+
