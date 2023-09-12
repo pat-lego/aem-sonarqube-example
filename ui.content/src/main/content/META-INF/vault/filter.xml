@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    <filter root="/conf/spasite" mode="merge"/>
+    <filter root="/content/spasite" mode="merge"/>
+    <filter root="/content/dam/spasite" mode="merge">
+        <exclude pattern="/content/dam/spasite(/.*)?"/>
+        <include pattern="/content/dam/spasite/jcr:content(/.*)?"/>
+    </filter>
+    <filter root="/content/dam/spasite/asset.jpg" mode="merge"/>
+    <filter root="/content/experience-fragments/spasite" mode="merge"/>
+</workspaceFilter>
